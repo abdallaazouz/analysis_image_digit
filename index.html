@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحليل الصور وحفظها</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #canvas {
+      border: 1px solid #000;
+      display: block;
+      margin: 20px auto;
+    }
+    #saveButton {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    #saveButton:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>تحليل الصور وحفظها</h1>
+  <input type="file" id="imageInput" accept="image/*">
+  <canvas id="canvas"></canvas>
+  <button id="saveButton">حفظ البيانات</button>
+  
+    <script>
+
+const imageInput = document.getElementById('imageInput');
+const canvas = document.getElementById('canvas');
+const saveButton = document.getElementById('saveButton');
+
+imageInput.addEventListener('change', function() {
+  if (this.files && this.files[0]) {
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+      const image = new Image();
+      image.onload = function() {
+        canvas.width = image.width;
+        canvas.height = image.height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, image.width, image.height);
+        const data = imageData.data;
+
+        const pixelData = [];
+        // Loop through pixels, starting from 1 for x and y
+        for (let y = 1; y <= image.height; y++) {
+          for (let x = 1; x <= image.width; x++) {
+            const i = (y - 1) * image.width * 4 + (x - 1) * 4;
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+
+            pixelData.push({ x, y, r, g, b });
+          }
+        }
+
+        saveButton.addEventListener('click', function() {
+          const text = pixelData.map(pixel => `${pixel.x}, ${pixel.y}, ${(pixel.r+pixel.g+pixel.b)/10}`).join('\n');
+
+          const fileName = prompt('اسم الملف');
+          if (fileName) {
+            const file = new Blob([text], { type: 'text/plain' });
+
+            const downloadURL = URL.createObjectURL(file);
+            const link = document.createElement('a');
+            link.href = downloadURL;
+            link.download = fileName + '.txt';
+            link.click();
+
+            URL.revokeObjectURL(downloadURL);
+          }
+        });
+      };
+
+      image.src = event.target.result;
+    };
+
+    reader.readAsDataURL(this.files[0]);
+  }
+});
+  </script>
+</body>
+</html>
