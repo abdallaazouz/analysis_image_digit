@@ -72,7 +72,7 @@ imageInput.addEventListener('change', function() {
         }
 
         saveButton.addEventListener('click', function() {
-          const text = pixelData.map(pixel => `${pixel.x}, ${pixel.y}, ${(pixel.r+pixel.g+pixel.b)/10}`).join('\n');
+          const text = pixelData.map(pixel => `${pixel.x}, ${pixel.y}, ${(pixel.r+pixel.g+pixel.b)}`).join('\n');
 
           const fileName = prompt('اسم الملف');
           if (fileName) {
